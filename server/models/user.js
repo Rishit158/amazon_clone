@@ -37,6 +37,7 @@ const userSchema = mongoose.Schema({
     type: String,
     default: "user",
   },
+  //cart
 });
 
 const User = mongoose.model("User", userSchema);

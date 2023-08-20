@@ -18,6 +18,7 @@ authRouter.post("/api/signup", async (req, res) => {
         .json({ msg: "User with the same email already exists!" });
     }
     const hashedPassword = await bcryptjs.hash(password, 8);
+    // two same password will not have the same hashed password because of salt feature
 
     let user = new User({
       email,
@@ -32,7 +33,7 @@ authRouter.post("/api/signup", async (req, res) => {
 });
 
 //SIGN IN ROUTE
-authRouter.post("api/signin", async (req, res) => {
+authRouter.post("/api/signin", async (req, res) => {
   try {
     const { email, password } = req.body; //getting email and password from the client
     const user = await User.findOne({ email }); // finding the email in our mongoDB
@@ -45,6 +46,7 @@ authRouter.post("api/signin", async (req, res) => {
     // matching with the signed up password
     const isMatch = await bcryptjs.compare(password, user.password);
     if (!isMatch) {
+      // !isMatch this is called guard clauses
       return res.status(400).json({ msg: "Incorrect password!" });
     }
 
@@ -60,9 +62,9 @@ authRouter.post("/tokenIsValid", async (req, res) => {
   try {
     const token = req.header("x-auth-token");
     if (!token) return res.json(false);
-    const verified = jwt.verify(token, "passwordKey");
+    const verified = jwt.verify(token, "passwordKey"); // checking if the token is correct or not
     if (!verified) return res.json(false);
-    const user = await User.findById(verified.id);
+    const user = await User.findById(verified.id); // checking if the user also exist or not
     if (!user) return res.json(false);
     res.json(true);
   } catch (e) {
